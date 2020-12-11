@@ -1796,6 +1796,9 @@ DFA* Prog::GetDFA(MatchKind kind) {
   // For a reverse DFA, all the memory goes to the
   // "longest match" DFA, because RE2 never does reverse
   // "first match" searches.
+#ifdef SCORPIO
+    return NULL;
+#else
   if (kind == kFirstMatch) {
     std::call_once(dfa_first_once_, [](Prog* prog) {
       prog->dfa_first_ = new DFA(prog, kFirstMatch, prog->dfa_mem_ / 2);
@@ -1815,6 +1818,7 @@ DFA* Prog::GetDFA(MatchKind kind) {
     }, this);
     return dfa_longest_;
   }
+#endif
 }
 
 void Prog::DeleteDFA(DFA* dfa) {

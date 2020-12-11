@@ -424,8 +424,10 @@ class Prog {
 
   uint8_t bytemap_[256];    // map from input bytes to byte classes
 
+#ifndef SCORPIO
   std::once_flag dfa_first_once_;
   std::once_flag dfa_longest_once_;
+#endif //SCORPIO
 
   Prog(const Prog&) = delete;
   Prog& operator=(const Prog&) = delete;

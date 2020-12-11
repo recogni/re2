@@ -33,8 +33,12 @@ typedef SRWLOCK MutexType;
 #include <stdlib.h>
 typedef pthread_rwlock_t MutexType;
 #else
+#ifndef SCORPIO
 #include <mutex>
 typedef std::mutex MutexType;
+#else
+//typedef FreeRTOS_mutex mutex => define a freertos mutex here
+#endif //SCORPIO
 #endif
 
 namespace re2 {
@@ -55,7 +59,10 @@ class Mutex {
   inline void WriterUnlock() { Unlock(); } // Release a lock from WriterLock()
 
  private:
+
+#ifndef SCORPIO
   MutexType mutex_;
+#endif
 
   // Catch the error of writing Mutex when intending MutexLock.
   Mutex(Mutex *ignored);
@@ -93,8 +100,18 @@ void Mutex::ReaderUnlock() { SAFE_PTHREAD(pthread_rwlock_unlock(&mutex_)); }
 
 Mutex::Mutex()             { }
 Mutex::~Mutex()            { }
-void Mutex::Lock()         { mutex_.lock(); }
-void Mutex::Unlock()       { mutex_.unlock(); }
+void Mutex::Lock()
+{
+#ifndef SCORPIO
+    mutex_.lock();
+#endif
+}
+void Mutex::Unlock()
+{
+#ifndef SCORPIO
+    mutex_.unlock();
+#endif
+}
 void Mutex::ReaderLock()   { Lock(); }  // C++11 doesn't have std::shared_mutex.
 void Mutex::ReaderUnlock() { Unlock(); }
 

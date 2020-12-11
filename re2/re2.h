@@ -761,9 +761,11 @@ class RE2 {
   // Map from capture indices to names
   mutable const std::map<int, std::string>* group_names_;
 
+#ifndef SCORPIO
   mutable std::once_flag rprog_once_;
   mutable std::once_flag named_groups_once_;
   mutable std::once_flag group_names_once_;
+#endif //SCORPIO
 
   RE2(const RE2&) = delete;
   RE2& operator=(const RE2&) = delete;
@@ -928,7 +930,9 @@ class LazyRE2 {
 
   // Named accessor/initializer:
   RE2* get() const {
+#ifndef SCORPIO
     std::call_once(once_, &LazyRE2::Init, this);
+#endif
     return ptr_;
   }
 
@@ -938,7 +942,9 @@ class LazyRE2 {
   NoArg barrier_against_excess_initializers_;
 
   mutable RE2* ptr_;
+#ifndef SCORPIO
   mutable std::once_flag once_;
+#endif
 
  private:
   static void Init(const LazyRE2* lazy_re2) {
